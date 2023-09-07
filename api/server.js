@@ -10,17 +10,56 @@ const projeto = {
     descricao: 'Your Way Tracker 3.0'
   }
   
-  const proxy = new Proxy(projeto, {
-    get(objetoOriginal, chave, receptor) {
-      console.log(`Alguém pediu a chave ${chave} do projeto`)
-      return Reflect.get(objetoOriginal, chave, receptor)
-    },
-    set(objetoOriginal, chave, valor) {
-      console.log(`Alguém alterou a chave ${chave} do projeto para o valor ${valor}`)
-      objetoOriginal[chave] = valor
-    },
-  })
-  
+    try {
+      const CADASTRAR_PROJETOToDBResponse = await fetch("/view/Projetos/Formulario.vue/CADASTRAR_PROJETO", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(data),
+      });
+      const CADASTRAR_PROJETOToDBStatus = await CADASTRAR_PROJETODBResponse.json();
+      if (CADASTRAR_PROJETOToDBResponse.status === 201) {
+        setImageUrl([]);
+        setIsLoading(false);
+        await router.push(`/view/Projetos/Formulario.vue/CADASTRAR_PROJETO${addProductToDBStatus.newProductId}`);
+        alertService.success(CADASTRAR_PROJETOToDBStatus.message, { keepAfterRouteChange: true });
+      } else {
+        setIsLoading(false);
+        await router.push("/view/Projetos/Formulario.vue/CADASTRAR_PROJETO");
+        alertService.error(`${CADASTRAR_PROJETOToDBStatus.message}: ${CADASTRAR_PROJETOToDBStatus.body}`, { autoClose: false, keepAfterRouteChange: false });
+      }
+    } catch (e: any) {
+      console.log(e, e.data, e.message);
+    }
+
+  try {
+switch (req.method) {
+  case "GET":
+    if (id === "OBTER_PROJETO") {
+      return getOBTER_PROJETO();
+    } else {
+      return getOBTER_PROJETO(id as string);
+    }
+  case "POST":
+    if (session?.role === "admin") {
+      return CADASTRAR_PROJETO(req, res);
+    }
+  case "PUT":
+    if (session?.role === "admin") {
+      return ALTERAR_PROJETO(req, res);
+    }
+  case "DELETE":
+    if (session?.role === "admin") {
+      return REMOVER_PROJETO(req, res);
+    }
+  default:
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
+}
+} catch (e) {
+console.log(e);
+}
 
 
 server.use(middlewares)
